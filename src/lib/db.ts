@@ -2,7 +2,9 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
 
-const DB_PATH = path.join(process.cwd(), 'data', 'crm.db');
+const DB_PATH = process.env.VERCEL
+  ? path.join('/tmp', 'biai-crm.db')
+  : path.join(process.cwd(), 'data', 'crm.db');
 
 let db: Database.Database;
 

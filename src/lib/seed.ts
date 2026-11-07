@@ -1,5 +1,5 @@
 import { getDb } from './db';
-import { extractEnquiryInfo } from './ai';
+import { fallbackExtract } from './ai';
 
 export interface SampleEnquiry {
   id: number;
@@ -85,7 +85,7 @@ export async function seedDatabase(force: boolean = false) {
     }
 
     // 2. Extract intelligence via AI module
-    const info = await extractEnquiryInfo(item.message, item.channel, item.sender_name, item.phone);
+    const info = fallbackExtract(item.message, item.channel, item.sender_name, item.phone);
 
     // 3. Duplicate detection: check if earlier enquiry exists from the same phone
     let isDuplicate = 0;

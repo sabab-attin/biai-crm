@@ -61,7 +61,7 @@ export interface ExtractedInfo {
 }
 
 // Deterministic domain knowledge engine (used as fallback when offline / no key / 429 quota)
-function fallbackExtract(message: string, channel: string, senderName?: string, phone?: string): ExtractedInfo {
+export function fallbackExtract(message: string, channel: string, senderName?: string, phone?: string): ExtractedInfo {
   const msgLower = (message || '').toLowerCase();
   const name = senderName || 'Unknown Contact';
   const cleanPhone = phone || '';

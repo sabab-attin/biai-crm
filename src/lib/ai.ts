@@ -16,12 +16,18 @@ export async function callGemini(prompt: string): Promise<string> {
   }
 
   let lastError = '';
+  const deadline = Date.now() + 12000;
   for (const model of CANDIDATE_MODELS) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) break;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), Math.min(remaining, 6000));
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
       const res = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
@@ -39,7 +45,9 @@ export async function callGemini(prompt: string): Promise<string> {
         lastError = `${res.status} ${res.statusText}`;
       }
     } catch (e: unknown) {
-      lastError = e instanceof Error ? e.message : 'Fetch error';
+      lastError = e instanceof DOMException && e.name === 'AbortError' ? 'Request timed out' : e instanceof Error ? e.message : 'Fetch error';
+    } finally {
+      clearTimeout(timeout);
     }
   }
 

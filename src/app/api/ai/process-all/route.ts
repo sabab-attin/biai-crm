@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/lib/db';
-import { extractEnquiryInfo } from '@/lib/ai';
+import { fallbackExtract } from '@/lib/ai';
 
 export async function POST() {
   try {
@@ -18,7 +18,7 @@ export async function POST() {
 
     for (const enquiry of unprocessed) {
       try {
-        const info = await extractEnquiryInfo(
+        const info = fallbackExtract(
           enquiry.original_message,
           enquiry.channel,
           enquiry.name,
@@ -62,8 +62,6 @@ export async function POST() {
         results.push({ id: enquiry.id, status: 'error', error: String(err) });
       }
 
-      // Rate limiting - wait 1 second between API calls
-      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     return NextResponse.json({ processed: results.length, results });

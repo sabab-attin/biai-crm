@@ -184,7 +184,8 @@ export default function Home() {
         await fetchWeeklySummary();
         alert('All enquiries successfully processed with smart AI triage!');
       } else {
-        throw new Error('Batch processing returned an error');
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.error || 'Batch processing returned an error');
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Batch processing error';

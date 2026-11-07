@@ -94,11 +94,12 @@ export default function AIAssistant({ onEnquiryCreated }: AIAssistantProps) {
       });
 
       const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || 'AI reply service error');
       if (resData.reply) {
         setGeneratedReply(resData.reply);
       }
-    } catch {
-      // Fallback
+    } catch (err: unknown) {
+      setExtractError(err instanceof Error ? err.message : 'Unable to generate an AI reply');
     } finally {
       setIsGeneratingReply(false);
     }
@@ -123,8 +124,9 @@ export default function AIAssistant({ onEnquiryCreated }: AIAssistantProps) {
         }),
       });
 
-      if (!res.ok) throw new Error('AI analysis service error');
-      const data: ExtractedInfo = await res.json();
+      const responseData = await res.json();
+      if (!res.ok) throw new Error(responseData.error || 'AI analysis service error');
+      const data: ExtractedInfo = responseData;
 
       setExtractedData(data);
       setConfirmedName(data.name || senderName || 'Unknown');
